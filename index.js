@@ -1,35 +1,35 @@
-require('dotenv').config()
+require("dotenv").config();
 const express = require("express");
 const app = express();
-const morgan = require('morgan');
+const morgan = require("morgan");
 const cors = require("cors");
-const Person = require('./models/person');
+const Person = require("./models/person");
 
 app.use(express.static("dist"));
 app.use(express.json());
 app.use(cors());
 
 // using the morgan middleware for logging
-morgan.token("getBody", function (req, res) {
+morgan.token("getBody", function (req, /*res*/) {
   if (req.method === "POST") return JSON.stringify(req.body);
   return null;
-})
+});
 
 app.use(morgan(":method :url :status :response-time ms :getBody"));
 
 
-app.get('/info', (request, response) => {
+app.get("/info", (request, response) => {
   Person.find({})
     .then(persons => {
       response.send(`<p>Phonebook has info for ${persons.length} people</p>
-    <p>${new Date()}</p>`)
-    })
+    <p>${new Date()}</p>`);
+    });
 });
 
 app.get("/api/persons", (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons);
-  })
+  });
 });
 
 app.get("/api/persons/:id", (request, response, next) => {
@@ -59,10 +59,10 @@ app.post("/api/persons", (request, response, next) => {
 
 app.delete("/api/persons/:id", (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then(result => {
-      response.status(204).end()
+    .then(() => {
+      response.status(204).end();
     })
-    .catch(error => next(error))
+    .catch(error => next(error));
 });
 
 app.put("/api/persons/:id", (request, response, next) => {
@@ -71,13 +71,13 @@ app.put("/api/persons/:id", (request, response, next) => {
   const person = {
     name: body.name,
     number: body.number,
-  }
+  };
   Person.findByIdAndUpdate(request.params.id, person, { new: true })
     .then(updatedPerson => {
       response.json(updatedPerson);
     })
     .catch(error => next(error));
-})
+});
 
 // Error handler middleware
 const handleError = (error, request, response, next) => {
@@ -88,11 +88,11 @@ const handleError = (error, request, response, next) => {
     return response.status(400).send(error);
   }
   next(error);
-}
+};
 
 app.use(handleError);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`App is running on port ${PORT}`)
-})
+  console.log(`App is running on port ${PORT}`);
+});
