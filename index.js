@@ -9,10 +9,8 @@ app.use(express.static("dist"));
 app.use(express.json());
 app.use(cors());
 
-
 // using the morgan middleware for logging
 morgan.token("getBody", function (req, res) {
-  // console.log('response', res);
   if (req.method === "POST") return JSON.stringify(req.body);
   return null;
 })
@@ -85,7 +83,9 @@ app.put("/api/persons/:id", (request, response, next) => {
 const handleError = (error, request, response, next) => {
   console.log(error);
   if (error.name === "CastError") {
-    return response.status(404).send({ error: "malformatted id" });
+    return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).send(error);
   }
   next(error);
 }
